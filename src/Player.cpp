@@ -1,48 +1,11 @@
-#include "cinder/app/AppNative.h"
-#include "cinder/TriMesh.h"
-#include "cinder/Camera.h"
-#include "cinder/gl/gl.h"
-#include "cinder/gl/Light.h"
 
-using namespace ci;
-using namespace ci::app;
+#include "Player.h"
 
-class CinderProjectApp : public AppNative {
-private:
-  TriMesh cube_mesh;
+cPlayer::cPlayer(){
+  cube_translate = Vec3f(0, 0, 0);
+  cube_rotate = Vec3f(0, 0, 0);
+  cube_matrix = Matrix44f::identity();
 
-  std::vector<Vec3f> cube_vertex;
-  std::vector<Color> cube_color;
-
-  std::unique_ptr<gl::Light> light;
-
-  CameraPersp camera;
-
-  Vec3f cube_translate = Vec3f(0, 0, 0);
-  Vec3f cube_rotate = Vec3f(0, 0, 0);
-  Matrix44f cube_matrix = Matrix44f::identity();
-
-  int push_state = 0;
-  enum push{
-    None,
-
-    a,
-    s,
-    d,
-    w,
-  };
-
-  public:
-	void setup();
-  void keyDown(KeyEvent event);
-  void keyUp(KeyEvent event);
-  void PlayerRoll();
-  void update();
-	void draw();
-};
-
-void CinderProjectApp::setup()
-{
   // 立方体の頂点
   // 左上から時計回りに 手前0,1,2,3  奥4,5,6,7
   cube_vertex.push_back({ -1, 1, 1 });    // 0
@@ -69,7 +32,7 @@ void CinderProjectApp::setup()
 
   // 立方体の頂点色
   for (int i = 0; i < 8; ++i){
-    cube_color.push_back(Color(1, 1, 1));
+    cube_color.push_back(Color(randFloat(0.5f, 1.0f), randFloat(0.5f, 1.0f), randFloat(0.5f, 1.0f)));
   }
 
   Color cube_colors[] = {
@@ -113,36 +76,15 @@ void CinderProjectApp::setup()
 
   // 頂点の法線をCinderに計算してもらう
   cube_mesh.recalculateNormals();
-
-  // ライトの準備
-  // 平行光源を１つ用意
-  light = std::unique_ptr<gl::Light>(new gl::Light(gl::Light::DIRECTIONAL, 0));
-  light->setAmbient(Color(0.5, 0.5, 0.5));
-  light->setDiffuse(Color(1.0, 1.0, 1.0));
-  light->setDirection(Vec3f(0.0, -1.0, 0.0));
-
-  // カメラの準備
-  camera = CameraPersp(getWindowWidth(), getWindowHeight(),
-    35.0, 0.5, 2000.0);
-
-  camera.lookAt(Vec3f(0.0, 1000.0, 1000.0),
-    Vec3f(0.0, 0.0, 0.0));
-
-  // カリングON
-  gl::enable(GL_CULL_FACE);
-
-  // 頂点カラーを対象にしてライティングの計算を行う
-  gl::enable(GL_COLOR_MATERIAL);
-
-  // ライティングON
-  gl::enable(GL_LIGHTING);
-  // 法線を正規化する
-  gl::enable(GL_NORMALIZE);
-
 }
 
-void CinderProjectApp::keyDown(KeyEvent event)
-{
+void cPlayer::setup(){
+  cube_translate = Vec3f(0, 0, 0);
+  cube_rotate = Vec3f(0, 0, 0);
+  cube_matrix = Matrix44f::identity();
+}
+
+void cPlayer::keyDown(KeyEvent event){
   if (event.getChar() == 'a'){
     push_state = push::a;
   }
@@ -157,7 +99,7 @@ void CinderProjectApp::keyDown(KeyEvent event)
   }
 }
 
-void CinderProjectApp::keyUp(KeyEvent event){
+void cPlayer::keyUp(KeyEvent event){
   if (event.getChar() == 'a'){
     push_state = push::None;
   }
@@ -172,50 +114,60 @@ void CinderProjectApp::keyUp(KeyEvent event){
   }
 }
 
-void CinderProjectApp::PlayerRoll()
-{
+void cPlayer::PlayerRoll(){
   switch (push_state){
-  case push::a :
-    cube_rotate.z = 3.0f / 60.0f;
-    cube_translate.x -= 0.1f;
+  case push::a:
+    cube_rotate.y = -9.0f / 60.0f;
+    if (cube_translate.x > 8){
+      cube_translate.x = 8;
+    }
+    else{
+      cube_translate.x += 0.3f;
+    }
     break;
 
-  case push::s :
-    cube_rotate.x = 3.0f / 60.0f;
-    cube_translate.z += 0.1f;
+  case push::s:
+    cube_rotate.x = -9.0f / 60.0f;
+    if (cube_translate.y < -6){
+      cube_translate.y = -6;
+    }
+    else{
+      cube_translate.y -= 0.3f;
+    }
     break;
 
-  case push::d :
-    cube_rotate.z = -(3.0f / 60.0f);
-    cube_translate.x += 0.1f;
+  case push::d:
+    cube_rotate.y = 9.0f / 60.0f;
+    if (cube_translate.x < -8){
+      cube_translate.x = -8;
+    }
+    else{
+      cube_translate.x -= 0.3f;
+    }
     break;
 
-  case push::w :
-    cube_rotate.x = -(3.0f / 60.0f);
-    cube_translate.z -= 0.1f;
+  case push::w:
+    cube_rotate.x = 9.0f / 60.0f;
+    if (cube_translate.y > 6){
+      cube_translate.y = 6;
+    }
+    else{
+      cube_translate.y += 0.3f;
+    }
   }
 
   if (push_state == push::None){
-    cube_matrix = Matrix44f::identity();
     cube_rotate = cube_rotate.zero();
   }
 }
 
-void CinderProjectApp::update()
-{
+void cPlayer::update(){
   PlayerRoll();
 
   cube_matrix = Matrix44f::createRotation(cube_rotate) * cube_matrix;
 }
 
-void CinderProjectApp::draw()
-{
-  gl::clear(Color(0.2f, 0.2f, 0.2f));
-
-  gl::setMatrices(camera);
-
-  light->enable();
-
+void cPlayer::draw(){
   gl::pushModelView();
   gl::scale(20.0, 20.0, 20.0);
   gl::translate(cube_translate);
@@ -224,8 +176,4 @@ void CinderProjectApp::draw()
   // ポリゴンを描画
   gl::draw(cube_mesh);
   gl::popModelView();
-
-  light->disable();
 }
-
-CINDER_APP_NATIVE( CinderProjectApp, RendererGl )
