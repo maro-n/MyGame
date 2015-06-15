@@ -17,7 +17,7 @@ void cGame::setup(){
 
 void cGame::keyDown(KeyEvent event){
   player.keyDown(event);
-  if (isEnd){
+  if (event.getChar() == 'r'){
     isChange = true;
   }
 }
@@ -34,8 +34,7 @@ void cGame::change(int& scene_change){
 }
 
 void cGame::update(){
-  enemy.update(isEnd);
-  enemy.SetReference(&player);
+  enemy.update();
   player.update();
 }
 

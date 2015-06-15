@@ -14,7 +14,6 @@ private:
   cEnemy enemy;
 
   bool isChange;
-  bool isEnd;
 
 public:
   cGame();

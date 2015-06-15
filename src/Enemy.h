@@ -1,25 +1,25 @@
 
 #pragma once
 #include "common.h"
-#include "Player.h"
 #include "cinder/Rand.h"
 
 using namespace ci;
 using namespace ci::app;
 
+struct Enemy{
+  Vec3f pos;
+  Vec3f size;
+  float speed;
+  float player_to_enemy;
+  Color color;
+
+  Vec3f getPos(){
+    return pos;
+  }
+};
+
 class cEnemy{
 private:
-  struct Enemy{
-    Vec3f pos;
-    Vec3f size;
-    float speed;
-    float player_to_enemy;
-    Color color;
-  }; 
-  std::list<Enemy> enemy;
-  Enemy enemy_init;
-
-  cPlayer* player_ref;
 
   int count;
   int timer;
@@ -29,7 +29,6 @@ private:
 public:
   cEnemy();
   void setup();
-  void SetReference(cPlayer*);
-  void update(bool&);
+  void update();
   void draw();
 };

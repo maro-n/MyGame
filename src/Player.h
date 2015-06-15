@@ -15,6 +15,9 @@ private:
   std::vector<Vec3f> cube_vertex;
   std::vector<Color> cube_color;
 
+  Vec3f cube_translate;
+  Vec3f cube_rotate;
+
   Matrix44f cube_matrix;
 
   int push_state = 0;
@@ -29,10 +32,6 @@ private:
 
 public:
   cPlayer();
-
-  Vec3f cube_translate;
-  Vec3f cube_rotate;
-
   void keyDown(KeyEvent);
   void keyUp(KeyEvent);
   void PlayerRoll();

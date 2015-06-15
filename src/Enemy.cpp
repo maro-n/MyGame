@@ -22,11 +22,8 @@ void cEnemy::setup(){
   enemy.clear();
 }
 
-void cEnemy::SetReference(cPlayer* pl_ref){
-  player_ref = pl_ref;
-}
 
-void cEnemy::update(bool& isEnd){
+void cEnemy::update(){
 
   timer++;
   if (timer % (pop_sec * 60) == 0){
@@ -72,14 +69,7 @@ void cEnemy::update(bool& isEnd){
 
     enemy_it->player_to_enemy = enemy_it->pos.z - (enemy_init.size.z / 2 + 20);
 
-
     if (enemy_it->player_to_enemy <= 0){
-      if (player_ref->cube_translate.x + 20 >= enemy_it->pos.x - enemy_it->size.x / 2){
-        if (player_ref->cube_translate.x - 20 <= enemy_it->pos.x + enemy_it->size.x / 2){
-          isEnd = true;
-        }
-      }
-
       enemy_it = enemy.erase(enemy_it);
       continue;
     }
