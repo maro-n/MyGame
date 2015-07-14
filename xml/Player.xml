@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Players>
+
+  <status>Status</status>
+  <Player>
+    <Status>
+      <ATK>120</ATK>
+      <DEF>100</DEF>
+      <INT>301</INT>
+      <DEX>334</DEX>
+      <SPD>345</SPD>
+    </Status>
+  </Player>
+
+</Players>
